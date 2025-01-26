@@ -277,6 +277,10 @@ class ZwiftPlayerData:
 
     @property
     def speed(self):
+        if not self.player_profile.get('useMetric', False):
+            KILOMETERS_TO_MILES = 0.621371
+            return round(self.data.get('speed', 0.0) * KILOMETERS_TO_MILES, 0)
+
         return round(self.data.get('speed', 0.0), 0)
 
     @property
@@ -289,10 +293,18 @@ class ZwiftPlayerData:
 
     @property
     def altitude(self):
+        if not self.player_profile.get('useMetric', False):
+            METERS_TO_FEET = 3.28084
+            return round(self.data.get('altitude', 0.0) * METERS_TO_FEET, 1)
+
         return round(self.data.get('altitude', 0.0), 1)
 
     @property
     def distance(self):
+        if not self.player_profile.get('useMetric', False):
+            METERS_TO_MILES = 0.000621371
+            return round(self.data.get('distance', 0.0) * METERS_TO_MILES, 2)
+
         return self.data.get('distance', 0.0)
 
     @property
@@ -402,27 +414,6 @@ class ZwiftData:
                         altitude = (float(player_state.altitude) - 9000) / 2
                         distance = float(player_state.distance)
                         speed = player_state.speed / 1000000.0
-                        _LOGGER.debug("Zwift altitude: {}".format(
-                            altitude))
-                        _LOGGER.debug("Zwift diistance: {}".format(
-                            distance))
-                        _LOGGER.debug("Zwift speed: {}".format(
-                            speed))
-
-                        # Conversions from metric to imperial units
-                        METERS_TO_MILES = 0.000621371
-                        METERS_TO_FEET = 3.28084
-
-                        altitude_imperial = float(altitude * METERS_TO_FEET)
-                        distance_imperial = float(distance * METERS_TO_MILES)
-                        speed_imperial = float(speed * METERS_TO_MILES * 1000)
-                        useMetric = player_profile.get("useMetric", False)
-                        _LOGGER.debug("Zwift altitude (imperial): {}".format(
-                            altitude_imperial))
-                        _LOGGER.debug("Zwift distance (imperial): {}".format(
-                            distance_imperial))
-                        _LOGGER.debug("Zwift speed (imperial): {}".format(
-                            speed_imperial))
 
                         gradient = self.players[player_id].data.get(
                             'gradient', 0)
@@ -433,19 +424,8 @@ class ZwiftData:
                                 'rideons': rideons
                             })
                         if self.players[player_id].data.get('distance', 0) > 0:
-                            previous_distance = self.players[player_id].data.get('distance', 0)
-                            previous_altitude = self.players[player_id].data.get('altitude', 0)
-                            _LOGGER.debug("Zwift previous altitude: {}".format(
-                                previous_altitude))
-                            _LOGGER.debug("Zwift previous distance: {}".format(
-                                previous_distance))
-
-                            if useMetric:
-                                delta_distance = distance - previous_distance
-                                delta_altitude = altitude - previous_altitude
-                            else:
-                                delta_distance = distance_imperial - previous_distance
-                                delta_altitude = altitude_imperial - previous_altitude
+                            delta_distance = distance - self.players[player_id].data.get('distance', 0)
+                            delta_altitude = altitude - self.players[player_id].data.get('altitude', 0)
 
                             if delta_distance > 0:
                                 gradient = delta_altitude / delta_distance
@@ -454,9 +434,9 @@ class ZwiftData:
                             'heartrate': int(float(player_state.heartrate)),
                             'cadence': int(float(player_state.cadence)),
                             'power': int(float(player_state.power)),
-                            'speed': speed if useMetric else speed_imperial,
-                            'altitude': altitude if useMetric else altitude_imperial,
-                            'distance': distance if useMetric else distance_imperial,
+                            'speed': speed,
+                            'altitude': altitude,
+                            'distance': distance,
                             'gradient': gradient,
                             'rideons': rideons
                         })
