@@ -413,7 +413,6 @@ class ZwiftData:
                         # [TODO] is this correct regardless of metric/imperial? Correct regardless of world?
                         altitude = (float(player_state.altitude) - 9000) / 2
                         distance = float(player_state.distance)
-                        speed = player_state.speed / 1000000.0
 
                         gradient = self.players[player_id].data.get(
                             'gradient', 0)
@@ -424,8 +423,10 @@ class ZwiftData:
                                 'rideons': rideons
                             })
                         if self.players[player_id].data.get('distance', 0) > 0:
-                            delta_distance = distance - self.players[player_id].data.get('distance', 0)
-                            delta_altitude = altitude - self.players[player_id].data.get('altitude', 0)
+                            delta_distance = distance - \
+                            self.players[player_id].data.get('distance', 0)
+                            delta_altitude = altitude - \
+                            self.players[player_id].data.get('altitude', 0)
 
                             if delta_distance > 0:
                                 gradient = delta_altitude / delta_distance
@@ -434,7 +435,7 @@ class ZwiftData:
                             'heartrate': int(float(player_state.heartrate)),
                             'cadence': int(float(player_state.cadence)),
                             'power': int(float(player_state.power)),
-                            'speed': speed,
+                            'speed': player_state.speed / 1000000.0,
                             'altitude': altitude,
                             'distance': distance,
                             'gradient': gradient,
