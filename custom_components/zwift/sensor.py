@@ -426,7 +426,6 @@ class ZwiftData:
                                 self.players[player_id].data.get('distance', 0)
                             delta_altitude = altitude - \
                                 self.players[player_id].data.get('altitude', 0)
-
                             if delta_distance > 0:
                                 gradient = delta_altitude / delta_distance
                         data.update({
